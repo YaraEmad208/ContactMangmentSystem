@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net472</TargetFramework> 
+
+    <WarnOn>3390;$(WarnOn)</WarnOn>
+  </PropertyGroup>
+
+  <ItemGroup>
+
+    
+
+    <Compile Include="Core\OperationResult.fs" />
+    <Compile Include="Core\ContactValidation.fs" />
+    <Compile Include="Core\Contact.fs" />
+	  <Compile Include="Repositories\ContactRepository.fs" />
+	  <Compile Include="Services\SearchService.fs" />
+	  <Compile Include="Services\ContactService.fs" />
+	  <Compile Include="Views\MainForm.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+</Project>

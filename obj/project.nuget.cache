@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "XnNekopxwdA=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Yara\\Downloads\\repos\\ContactManagementSystem\\ContactManagementSystem\\ContactManagementSystem.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Yara\\.nuget\\packages\\fsharp.core\\8.0.401\\fsharp.core.8.0.401.nupkg.sha512"
+  ],
+  "logs": []
+}

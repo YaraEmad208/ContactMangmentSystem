@@ -1,0 +1,3 @@
+﻿module ContactRepository
+open Contact
+

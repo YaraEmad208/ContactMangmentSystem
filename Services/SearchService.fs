@@ -1,0 +1,3 @@
+﻿module SearchService
+open ContactRepository
+
