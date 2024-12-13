@@ -53,3 +53,26 @@ type MainForm() as this =
     actionPanel.Controls.AddRange([| addButton; updateButton; deleteButton |])
     searchPanel.Controls.AddRange([| |])
     this.Controls.AddRange([| headerLabel; searchLabel; detailsGroup; searchTextBox ; actionPanel; searchPanel; contactsGroup; statusLabel |])
+
+        addButton.Click.Add(fun _ -> 
+            let name = nameTextBox.Text
+            let phone = phoneTextBox.Text
+            let email = emailTextBox.Text
+
+            match validatePhoneNumber phone with
+            | Error msg -> setStatus ("Error: " + msg) true
+            | Ok _ -> 
+                match validateEmail email with
+                | Error msg -> setStatus ("Error: " + msg) true
+                | Ok _ -> 
+                    if phoneExists phone contactsDb then
+                        setStatus "Error: Phone number already exists!" true
+                    elif emailExists email contactsDb then
+                        setStatus "Error: Email already exists!" true
+                    else
+                        let newId = (Map.count contactsDb) + 1
+                        let contact = { Id = newId; Name = name; Phone = phone; Email = email }
+
+                        contactsDb <- ContactRepository.addContact contact contactsDb
+                        setStatus "Contact added successfully!" false
+                        updateContactListBox None contactsDb)
