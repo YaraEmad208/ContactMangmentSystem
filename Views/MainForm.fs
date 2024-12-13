@@ -76,3 +76,27 @@ type MainForm() as this =
                         contactsDb <- ContactRepository.addContact contact contactsDb
                         setStatus "Contact added successfully!" false
                         updateContactListBox None contactsDb)
+                        
+                        updateButton.Click.Add(fun _ -> 
+    match contactsListBox.SelectedItem with
+    | null -> setStatus "Please select a contact to update!" true
+    | selected -> 
+        let selectedText = selected.ToString()
+        let id = selectedText.Split([| ',' |]) |> Array.head |> fun part -> part.Replace("Id: ", "").Trim() |> int
+        let name = nameTextBox.Text
+        let phone = phoneTextBox.Text
+        let email = emailTextBox.Text
+
+        match validatePhoneNumber phone, validateEmail email with
+        | Error msg, _ | _, Error msg -> setStatus ("Error: " + msg) true
+        | Ok _, Ok _ -> 
+            if phoneExists phone contactsDb && (phone <> (Map.find id contactsDb).Phone) then
+                setStatus "Error: Phone number already exists!" true
+            elif emailExists email contactsDb && (email <> (Map.find id contactsDb).Email) then
+                setStatus "Error: Email already exists!" true
+            else
+                let updatedContact = { Id = id; Name = name; Phone = phone; Email = email }
+      
+                contactsDb <- ContactRepository.updateContact updatedContact contactsDb
+                setStatus "Contact updated successfully!" false
+                updateContactListBox None contactsDb)
