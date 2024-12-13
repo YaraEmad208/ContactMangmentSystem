@@ -100,3 +100,13 @@ type MainForm() as this =
                 contactsDb <- ContactRepository.updateContact updatedContact contactsDb
                 setStatus "Contact updated successfully!" false
                 updateContactListBox None contactsDb)
+        
+        deleteButton.Click.Add(fun _ -> 
+            match contactsListBox.SelectedItem with
+            | null -> setStatus "Please select a contact to delete!" true
+            | selected -> 
+                let selectedText = selected.ToString()
+                let id = selectedText.Split([| ',' |]) |> Array.head |> fun part -> part.Replace("Id: ", "").Trim() |> int
+                contactsDb <- ContactRepository.deleteContact id contactsDb
+                setStatus "Contact deleted successfully!" false
+                updateContactListBox None contactsDb)
