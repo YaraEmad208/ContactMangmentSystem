@@ -46,4 +46,10 @@ type MainForm() as this =
 
     let emailExists email db =
         db |> Map.exists (fun _ contact -> contact.Email = email)
-  
+    do
+    this.Text <- "Contact Manager"
+    this.Size <- new Size(560, 700)
+
+    actionPanel.Controls.AddRange([| addButton; updateButton; deleteButton |])
+    searchPanel.Controls.AddRange([| |])
+    this.Controls.AddRange([| headerLabel; searchLabel; detailsGroup; searchTextBox ; actionPanel; searchPanel; contactsGroup; statusLabel |])
