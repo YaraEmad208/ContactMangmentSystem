@@ -113,19 +113,21 @@ type MainForm() as this =
 
         searchTextBox.TextChanged.Add(fun _ -> 
     let searchTerm = searchTextBox.Text
+    searchTextBox.TextChanged.Add(fun _ -> 
+    let searchTerm = searchTextBox.Text
     updateContactListBox (if String.IsNullOrEmpty searchTerm then None else Some searchTerm) contactsDb)
 
-contactsListBox.SelectedIndexChanged.Add(fun _ -> 
-    match contactsListBox.SelectedItem with
-    | null -> ()
-    | selected -> 
-        let selectedText = selected.ToString()
-        let id = selectedText.Split([| ',' |]) |> Array.head |> fun part -> part.Replace("Id: ", "").Trim() |> int
-        match Map.tryFind id contactsDb with
-        | Some contact -> 
-            nameTextBox.Text <- contact.Name
-            phoneTextBox.Text <- contact.Phone
-            emailTextBox.Text <- contact.Email
-        | None -> setStatus "Contact not found!" true)
-
-updateContactListBox None contactsDb
+    contactsListBox.SelectedIndexChanged.Add(fun _ -> 
+        match contactsListBox.SelectedItem with
+        | null -> ()
+        | selected -> 
+            let selectedText = selected.ToString()
+            let id = selectedText.Split([| ',' |]) |> Array.head |> fun part -> part.Replace("Id: ", "").Trim() |> int
+            match Map.tryFind id contactsDb with
+            | Some contact -> 
+                nameTextBox.Text <- contact.Name
+                phoneTextBox.Text <- contact.Phone
+                emailTextBox.Text <- contact.Email
+            | None -> setStatus "Contact not found!" true)
+    
+    updateContactListBox None contactsDb
