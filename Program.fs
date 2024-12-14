@@ -1,4 +1,15 @@
 ﻿open System
 open System.Windows.Forms
-open MainForm // Assuming the MainForm module is in the same project
+open MainForm 
 
+[<STAThread>]
+[<EntryPoint>]
+let main argv =
+
+    Application.EnableVisualStyles()
+    Application.SetCompatibleTextRenderingDefault(false)
+
+    let form = new MainForm()
+    Application.Run(form)
+
+    0 
