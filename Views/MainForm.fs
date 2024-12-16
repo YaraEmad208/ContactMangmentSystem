@@ -1,4 +1,4 @@
-module MainForm
+﻿module MainForm
 
 open System
 open System.Drawing
@@ -6,10 +6,11 @@ open System.Windows.Forms
 open Contact
 open ContactValidation
 open SearchService
+
 type MainForm() as this =
     inherit Form()
 
-    let headerLabel = new Label(Text = "Contact Manager", Font = new Font("Arial", 16.0f, FontStyle.Bold), Dock = DockStyle.Top,ForeColor = Color.DarkBlue, TextAlign = ContentAlignment.MiddleCenter, Height = 40)
+    let headerLabel = new Label(Text = "Contact Manager", Font = new Font("Arial", 16.0f, FontStyle.Bold), Dock = DockStyle.Top, ForeColor = Color.DarkBlue, TextAlign = ContentAlignment.MiddleCenter, Height = 40)
     let searchLabel = new Label(Text = "Search", Top = 50, Left = 20, Width = 50)
     let searchTextBox = new TextBox(Top = 50, Left = 100, Width = 300, Height = 40)
     let searchPanel = new FlowLayoutPanel(Top = 40, Left = 400, Width = 500, Height = 50, FlowDirection = FlowDirection.LeftToRight)
@@ -27,8 +28,8 @@ type MainForm() as this =
     let contactsGroup = new GroupBox(Text = "Contacts", Top = 340, Left = 20, Width = 500, Height = 300)
     let contactsListBox = new ListBox(Top = 30, Left = 20, Width = 460, Height = 240, Parent = contactsGroup)
     let statusLabel = new Label(Top = 640, Left = 20, Width = 500, ForeColor = Color.Black, TextAlign = ContentAlignment.MiddleCenter)
-    let mutable contactsDb = ContactRepository.initialDatabase
 
+    let contactsDb = ref ContactRepository.initialDatabase
 
     let updateContactListBox (filter: string option) (contactsDb: Map<int, Contact>) =
         contactsListBox.Items.Clear()
@@ -56,7 +57,7 @@ type MainForm() as this =
 
         actionPanel.Controls.AddRange([| addButton; updateButton; deleteButton |])
         searchPanel.Controls.AddRange([| |])
-        this.Controls.AddRange([| headerLabel; searchLabel; detailsGroup; searchTextBox ; actionPanel; searchPanel; contactsGroup; statusLabel |])
+        this.Controls.AddRange([| headerLabel; searchLabel; detailsGroup; searchTextBox; actionPanel; searchPanel; contactsGroup; statusLabel |])
 
         addButton.Click.Add(fun _ -> 
             let name = nameTextBox.Text
@@ -69,17 +70,17 @@ type MainForm() as this =
                 match validateEmail email with
                 | Error msg -> setStatus ("Error: " + msg) true
                 | Ok _ -> 
-                    if phoneExists phone contactsDb then
+                    if phoneExists phone !contactsDb then
                         setStatus "Error: Phone number already exists!" true
-                    elif emailExists email contactsDb then
+                    elif emailExists email !contactsDb then
                         setStatus "Error: Email already exists!" true
                     else
-                        let newId = (Map.count contactsDb) + 1
+                        let newId = (Map.count !contactsDb) + 1
                         let contact = { Id = newId; Name = name; Phone = phone; Email = email }
 
-                        contactsDb <- ContactRepository.addContact contact contactsDb
+                        contactsDb := ContactRepository.addContact contact !contactsDb
                         setStatus "Contact added successfully!" false
-                        updateContactListBox None contactsDb)
+                        updateContactListBox None !contactsDb)
 
         updateButton.Click.Add(fun _ -> 
             match contactsListBox.SelectedItem with
@@ -94,16 +95,16 @@ type MainForm() as this =
                 match validatePhoneNumber phone, validateEmail email with
                 | Error msg, _ | _, Error msg -> setStatus ("Error: " + msg) true
                 | Ok _, Ok _ -> 
-                    if phoneExists phone contactsDb && (phone <> (Map.find id contactsDb).Phone) then
+                    if phoneExists phone !contactsDb && (phone <> (Map.find id !contactsDb).Phone) then
                         setStatus "Error: Phone number already exists!" true
-                    elif emailExists email contactsDb && (email <> (Map.find id contactsDb).Email) then
+                    elif emailExists email !contactsDb && (email <> (Map.find id !contactsDb).Email) then
                         setStatus "Error: Email already exists!" true
                     else
                         let updatedContact = { Id = id; Name = name; Phone = phone; Email = email }
-              
-                        contactsDb <- ContactRepository.updateContact updatedContact contactsDb
+
+                        contactsDb := ContactRepository.updateContact updatedContact !contactsDb
                         setStatus "Contact updated successfully!" false
-                        updateContactListBox None contactsDb)
+                        updateContactListBox None !contactsDb)
 
         deleteButton.Click.Add(fun _ -> 
             match contactsListBox.SelectedItem with
@@ -111,13 +112,13 @@ type MainForm() as this =
             | selected -> 
                 let selectedText = selected.ToString()
                 let id = selectedText.Split([| ',' |]) |> Array.head |> fun part -> part.Replace("Id: ", "").Trim() |> int
-                contactsDb <- ContactRepository.deleteContact id contactsDb
+                contactsDb := ContactRepository.deleteContact id !contactsDb
                 setStatus "Contact deleted successfully!" false
-                updateContactListBox None contactsDb)
+                updateContactListBox None !contactsDb)
 
         searchTextBox.TextChanged.Add(fun _ -> 
             let searchTerm = searchTextBox.Text
-            updateContactListBox (if String.IsNullOrEmpty searchTerm then None else Some searchTerm) contactsDb)
+            updateContactListBox (if String.IsNullOrEmpty searchTerm then None else Some searchTerm) !contactsDb)
 
         contactsListBox.SelectedIndexChanged.Add(fun _ -> 
             match contactsListBox.SelectedItem with
@@ -125,11 +126,11 @@ type MainForm() as this =
             | selected -> 
                 let selectedText = selected.ToString()
                 let id = selectedText.Split([| ',' |]) |> Array.head |> fun part -> part.Replace("Id: ", "").Trim() |> int
-                match Map.tryFind id contactsDb with
+                match Map.tryFind id !contactsDb with
                 | Some contact -> 
                     nameTextBox.Text <- contact.Name
                     phoneTextBox.Text <- contact.Phone
                     emailTextBox.Text <- contact.Email
                 | None -> setStatus "Contact not found!" true)
 
-        updateContactListBox None contactsDb
+        updateContactListBox None !contactsDb
